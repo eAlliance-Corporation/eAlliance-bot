@@ -1,20 +1,24 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import styles from "./Document.module.css";
+
 import { PrimaryButton, TextField } from "@fluentui/react";
 import PDFfile from "../../assets/pdf.svg";
 import Pending from "../../assets/pending.svg";
-import Verified from "../../assets/verified.svg";
 import Loading from "../../assets/loading.svg";
 import Loader from "../../assets/loader.svg";
+import Verified from "../../assets/verified.svg";
 import { ContextualMenu, ContextualMenuItemType, IContextualMenuItem } from "@fluentui/react/lib/ContextualMenu";
 import Context from "../../context/store";
 import { useNavigate } from "react-router-dom";
 import { ArrowCounterclockwise24Filled } from "@fluentui/react-icons";
+import MainLoginPage from "./MainloginPage";
+
 
 const FileGridItem = (props: any) => {
-    const { document, ingested, handleUpdate, handleDelete, ingestLock } = props;
+    const { document, ingested, handleUpdate, handleDelete, ingestLock,context } = props;
     const [showContextualMenu, setShowContextualMenu] = useState<boolean>(false);
     const [file, setFile] = useState();
+    const navigate = useNavigate();
     const onHideContextualMenu = () => setShowContextualMenu(false);
 
     const linkRef = useRef<HTMLInputElement>(null);
@@ -27,13 +31,29 @@ const FileGridItem = (props: any) => {
             setFile(undefined);
         }
     };
+    const handleOpenDocument = () => {
+        if (context.user === "admin") {
+          // If the user is an admin, open the document
+          hrefRef.current?.click();
+        } else {
+          // If the user is not an admin, redirect to the login page
+          return <MainLoginPage />; // Replace "/login" with the actual login page route
+        }
+      };
     const menuItems: IContextualMenuItem[] = [
         {
             key: "openItem",
             text: "Open",
             iconProps: { iconName: "Folder", style: { color: "salmon" } },
-            onClick: () => hrefRef.current?.click()
-        },
+            onClick: () => {
+              if (context.user === "admin") {
+                hrefRef.current?.click();
+              } else {
+                // If the user is not an admin, redirect to the login page
+                navigate("/Mainloginpage"); // Replace "/login" with the actual login page route
+              }
+            }
+          },
         {
             key: "divider_1",
             itemType: ContextualMenuItemType.Divider
@@ -52,75 +72,30 @@ const FileGridItem = (props: any) => {
             onClick: handleDelete,
             disabled: ingestLock
         }
-        // {
-        //     key: "divider_1",
-        //     itemType: ContextualMenuItemType.Divider
-        // },
-        // {
-        //     key: "rename",
-        //     text: "Rename",
-        //     onClick: () => console.log("Rename clicked")
-        // },
-        // {
-        //     key: "edit",
-        //     text: "Edit",
-        //     onClick: () => console.log("Edit clicked")
-        // },
-        // {
-        //     key: "properties",
-        //     text: "Properties",
-        //     onClick: () => console.log("Properties clicked")
-        // },
-        // {
-        //     key: "linkNoTarget",
-        //     text: "Link same window",
-        //     href: "http://bing.com"
-        // },
-        // {
-        //     key: "linkWithTarget",
-        //     text: "Link new window",
-        //     href: "http://bing.com",
-        //     target: "_blank"
-        // },
-        // {
-        //     key: "linkWithOnClick",
-        //     name: "Link click",
-        //     href: "http://bing.com",
-        //     onClick: ev => {
-        //         alert("Link clicked");
-        //         ev?.preventDefault();
-        //     },
-        //     target: "_blank"
-        // },
-        // {
-        //     key: "disabled",
-        //     text: "Disabled item",
-        //     disabled: true,
-        //     onClick: () => console.error("Disabled item should not be clickable.")
-        // }
     ];
     if (ingested?.operation == 2) {
         return (
-            <div className={styles.gridItem} style={{ position: "relative", opacity: 0.5, cursor: "not-allowed" }}>
-                <div style={{ paddingBottom: "10px" }}>
-                    <img src={PDFfile} alt="pdf file" height="50px" width="60px" />
-                </div>
-                <div>{document}</div>
-                <div className={styles.ingestIndicator}>
-                    {ingested?.status == 1 ? (
-                        <img className={styles.rotating} src={Loading} alt="Loading" height="30px" width="30px" />
+            <div className={styles.listItem} >
+                <img src={PDFfile} alt="pdf file" height="20px" width="20px" />
+                <div style={{ marginLeft: "10px" }}>{document}</div> &nbsp;
+                {ingested?.status == 1 ? (
+                        <img className={styles.rotating} src={Loading} alt="Loading" height="20px" width="20px" />
                     ) : (
-                        <img src={Pending} alt="Pending" height="40px" width="40px" />
+                        <img src={Pending} alt="Pending" height="20px" width="20px" />
                     )}
                 </div>
-            </div>
+                
+                
+           
         );
     }
 
     return (
-        <div>
-            <a ref={hrefRef} href={`/file/${document}`} target="_blank" style={{ display: "none" }} />
-            <div
+      <li className={styles.listItem}>
+        {/* <Route path="/file/:document"> */}
+        {/* {context.user === "admin" ? ( */}
+         <a ref={hrefRef} href={`/file/${document}`} target="_blank" onClick={handleOpenDocument}  >
+         <div
                 ref={linkRef}
                 className={styles.gridItem}
                 onClick={() => hrefRef.current?.click()}
@@ -130,21 +105,31 @@ const FileGridItem = (props: any) => {
                 }}
                 style={{ position: "relative" }}
             >
-                <div style={{ paddingBottom: "10px" }}>
-                    <img src={PDFfile} alt="pdf file" height="50px" width="60px" />
-                </div>
-                <div>{document}</div>
-                <div className={styles.ingestIndicator}>
-                    {ingested?.status === 2 ? (
-                        <img src={Verified} alt="Verified" height="30px" width="30px" />
-                    ) : ingested?.status === 1 ? (
-                        <img className={styles.rotating} src={Loading} alt="Loading" height="30px" width="30px" />
-                    ) : (
-                        <img src={Pending} alt="Pending" height="40px" width="40px" />
-                    )}
-                </div>
+                <img src={PDFfile} alt="pdf file" height="20px" width="20px" />
+                <span>{document}</span>
+                {ingested?.status === 2 ? (
+                    <img src={Verified} alt="Verified" height="20px" width="20px" />
+                ) : ingested?.status === 1 ? (
+                    <img className={styles.rotating} src={Loading} alt="Loading" height="20px" width="20px" />
+                ) : (
+                    <img src={Pending} alt="Pending" height="20px" width="20px" />
+                )}
             </div>
-            <input ref={fileRef} type="file" style={{ display: "none" }} accept="application/pdf" onChange={onUpdateChange} value={file} />
+            </a>
+            {/* ) : (
+                <div>
+                   <p>You do not have permission to access this document.</p>
+                </div>
+              )}
+            </Route> */}
+            <input
+                ref={fileRef}
+                type="file"
+                style={{ display: "none" }}
+                accept="application/pdf"
+                onChange={onUpdateChange}
+                value={file}
+            />
             <ContextualMenu
                 items={menuItems}
                 hidden={!showContextualMenu}
@@ -152,7 +137,8 @@ const FileGridItem = (props: any) => {
                 onItemClick={onHideContextualMenu}
                 onDismiss={onHideContextualMenu}
             />
-        </div>
+        </li>
+        
     );
 };
 
@@ -161,14 +147,15 @@ const parseJson = (resp: any) => {
         return resp.json();
     }
     return resp.json().then((res: any) => {
-        throw new Error(res.error);
+        throw  Error(res.error);
     });
 };
+
 const handleError = (err: any) => console.log(err);
 
 const Document = () => {
     const context = useContext(Context);
-    const navigate = useNavigate();
+    
     const [documents, setDocuments] = useState({ files: [], ingested: {}, ingest_lock: true });
     const [search, setSearch] = useState<string | undefined>("");
     const [file, setFile] = useState();
@@ -237,7 +224,7 @@ const Document = () => {
     }, [documents.ingest_lock]);
 
     if (context.user !== "admin") {
-        navigate("/");
+        return <MainLoginPage />;
     }
 
     let filteredDocuments = documents.files;
@@ -247,15 +234,23 @@ const Document = () => {
     }
     return (
         <>
-            <div style={{ display: "flex" }}>
-                <div style={{ flexGrow: 1 }}>
-                    {documents.ingest_lock && (
-                        <div style={{ display: "flex", alignItems: "center", paddingTop: "15px", paddingLeft: "10px" }}>
-                            <img className={styles.rotating} src={Loader} alt="Loading" height="30px" width="30px" style={{ marginRight: "20px" }} /> Reindexing
-                            Process is Ongoing...
-                        </div>
-                    )}
-                </div>
+        
+        <div style={{ display: "flex" }}>
+            <div style={{ flexGrow: 1 }}>
+                {documents.ingest_lock && (
+                    <div style={{ display: "flex", alignItems: "center", paddingTop: "15px", paddingLeft: "10px" }}>
+                        <img
+                            className={styles.rotating}
+                            src={Loader}
+                            alt="Loading"
+                            height="20px"
+                            width="20px"
+                            style={{ marginRight: "20px" }}
+                        />{" "}
+                        Reindexing Process is Ongoing...
+                    </div>
+                )}
+            </div>
                 <div className={styles.buttonRow}>
                     <div style={{ marginRight: "20px", display: "flex", alignItems: "center", cursor: "pointer" }}>
                         <ArrowCounterclockwise24Filled style={{ color: "grey" }} onClick={fetchDocuments} />
@@ -275,6 +270,7 @@ const Document = () => {
                     <PrimaryButton text="Reindex" onClick={handleIngest} disabled={documents.ingest_lock} />
                 </div>
             </div>
+            {/* <Route path="/documents"> */}
             <div style={{ padding: "5px 10px" }}>
                 <div className={styles.gridContainer}>
                     {filteredDocuments.map(d => (
@@ -285,10 +281,12 @@ const Document = () => {
                             ingestLock={documents.ingest_lock}
                             handleUpdate={(f: any) => handleUpdate(f, d)}
                             handleDelete={() => handleDelete(d)}
+                            // context={context} // Pass 'context' as a prop
                         />
                     ))}
                 </div>
             </div>
+            {/* </Route> */}
         </>
     );
 };
