@@ -229,7 +229,7 @@ const Document = () => {
 
     let filteredDocuments = documents.files;
     if (search) {
-        const regexp = new RegExp(".*" + search.replace(/[-[\]{}()*+?.,\\^$|]/g, "\\$&") + ".*", "i");
+        const regexp = new RegExp("." + search.replace(/[-[\]{}()+?.,\\^$|]/g, "\\$&") + ".*", "i");
         filteredDocuments = filteredDocuments.filter(f => regexp.test(f));
     }
     return (

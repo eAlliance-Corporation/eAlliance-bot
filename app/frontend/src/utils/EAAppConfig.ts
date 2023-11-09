@@ -6,7 +6,7 @@
 // import paramData from "../../public/configs/Thermos.json";
 // import paramData from "../../public/configs/Nriva.json";
 // import paramData from "../../public/configs/ITServe Synergy 2023.json";
-import paramData from "../../public/configs/Deerfieldhr.json";
+import paramData from "../../public/configs/ealliance.json";
 
 const appConfig = paramData;
 
